@@ -61,6 +61,25 @@ def publish_transforms():
 	#using the broadcaster to publish
 	br.sendTransform(T2_stamped)
 
+	#-------T3----------------------------------------
+	#Applying a inverse transformation
+	T2_inverse = tf. transformations.inverse_matrix(T2)
+	T3_stamped = geometry_msgs.msg.TransformStamped()
+	T3_stamped.header.stamp = rospy.Time.now()
+	T3_stamped.header.frame_id = "F2"
+	T3_stamped.child_frame_id = "F3"
+	T3_stamped.transform = message_from_transform(T2_inverse)
+	br.sendTransform(T3_stamped)
+
+	#-------T4---------------------------------------
+	T1_inverse = tf.transformations.inverse_matrix(T1)
+	T4_stamped = geometry_msgs.msg.TransformStamped()
+	T4_stamped.header.stamp = rospy.Time.now()
+	T4_stamped.header.frame_id = "F3"
+	T4_stamped.child_frame_id = "F4"
+	T4_stamped.transform = message_from_transform(T1_inverse)
+	br.sendTransform(T4_stamped)
+
 if __name__ == '__main__':
 	rospy.init_node("tf2_examples")
 	global br
