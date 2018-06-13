@@ -22,6 +22,18 @@ def message_from_transform(T):
 
     return message
 
+def inverse_to_message(T):
+    message = geometry_msgs.msg.Transform()
+    quad = tf.transformations.quaternion_from_matrix(T)
+    #translationMove = tf.transformations.translation_from_matrix(T)
+    #x = quad[0]
+    #y = quad[1]
+    #z = quad[2]
+    #w = quad[3]
+    angles = tf.transformations.euler_from_quaternion(quad)
+
+    return angles
+
 
 def publish_transforms():
     # ----------T1-------------------------------------
@@ -49,15 +61,30 @@ def publish_transforms():
     robot_transform.header.stamp = rospy.Time.now()
     robot_transform.header.frame_id = "base_frame"
     robot_transform.child_frame_id = "robot_frame"
+    robot_transform.transform = message_from_transform(T2)
     br.sendTransform(robot_transform)
  
+    #robot inverse matrix, T3 will use it---------------
+    T1_inverse = tf.transformations.inverse_matrix(T1)
+    invertedAngles = inverse_to_message(T1_inverse)
+
     #-------------T3------------------------------------
-    #camera_transform = geometry_msgs.msg.TransformStamped()
-    #camera_transform.header.stamp = rospy.Time.now()
-    #camera_transform.header.frame_id = "robot_frame"
-    #camera_transform.child_frame_id = "camera_frame"
-    #camera_transform.transform = message_from_transform(T2)
-    #br.sendTransform(camera_transform)
+    T3 = tf.transformations.concatenate_matrices(
+        tf.transformations.translation_matrix((0.0, 0.1, 0.1)),
+        tf.transformations.quaternion_matrix(
+            tf.transformations.quaternion_from_euler(
+                invertedAngles[0],
+                invertedAngles[1],
+                invertedAngles[2]
+                )
+            )
+        )
+    camera_transform = geometry_msgs.msg.TransformStamped()
+    camera_transform.header.stamp = rospy.Time.now()
+    camera_transform.header.frame_id = "robot_frame"
+    camera_transform.child_frame_id = "camera_frame"
+    camera_transform.transform = message_from_transform(T2)
+    br.sendTransform(camera_transform)
 
 if __name__ == '__main__':
     rospy.init_node('project2_solution')
