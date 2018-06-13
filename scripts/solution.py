@@ -22,17 +22,32 @@ def message_from_transform(T):
 
     return message
 
-def inverse_to_message(T):
-    message = geometry_msgs.msg.Transform()
-    quad = tf.transformations.quaternion_from_matrix(T)
-    #translationMove = tf.transformations.translation_from_matrix(T)
-    #x = quad[0]
-    #y = quad[1]
-    #z = quad[2]
-    #w = quad[3]
-    angles = tf.transformations.euler_from_quaternion(quad)
+def one_magnitude_vector(vector):
+    #returnning unit vector of a vector
+    unitVector = vector / numpy.linealf.norm(vector)
+    return unitVector
 
-    return angles
+def angle_calculation_btwn(vector1, vector2):
+    #this will return the angle in radians beteen two vectors
+    vector1_unit = one_magnitude_vector(vector1)
+    vector2_unit = one_magnitude_vector(vector2)
+
+    #getting the dot product between vector1 and vector2
+    dotProd = numpy.dot(vector1_unit, vector2_unit)
+
+    """
+    clip(a, a_min, a_max, out=None)
+
+    Clip (limit) the values in an array.
+
+    Given an interval, values outside the interval are clipped to the interval
+    edges. For example, if an interval of [0, 1] is specified, values smaller
+    than 0 become 0, and values larger than 1 become 1.
+    """
+    clippedVector = numpy.clip(dotProd, -1.0, 1.0)
+
+    angle = numpy.arccos(clippedVector)
+    return angle
 
 
 def publish_transforms():
