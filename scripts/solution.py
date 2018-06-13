@@ -1,4 +1,7 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python
+#helping pages:
+#https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python/13849249#13849249
+
 import rospy
 
 import numpy
@@ -6,6 +9,9 @@ import numpy
 import tf
 import tf2_ros
 import geometry_msgs.msg
+
+#flag to start the first iteration
+starter = True
 
 ##FOR NEW SPACE POSITION
 def message_from_transform(T):
@@ -46,11 +52,23 @@ def angle_calculation_btwn(vector1, vector2):
     """
     clippedVector = numpy.clip(dotProd, -1.0, 1.0)
 
-    angle = numpy.arccos(clippedVector)
-    return angle
+    vectorized = numpy.arccos(clippedVector)
+    return vectorized
 
+#matrix times vector
+def matrixTimesVector(matrix, vector):
+    vector.append(1)
+    MV = [sum([vector[x]*matrix[n][x] for x in range(len(vector))]) for n in range(len(matrix))]
+    return MV 
 
 def publish_transforms():
+    #GLOBAL VARIABLES FOR ANGLE IN T3 CALCULATION
+    global angleT3
+    global xT3
+    global cameraT3pos
+    global robotT2pos
+    global starter
+    
     # ----------T1-------------------------------------
     T1 = tf.transformations.concatenate_matrices(
         tf.transformations.quaternion_matrix(
