@@ -30,7 +30,7 @@ def message_from_transform(T):
 
 def one_magnitude_vector(vector):
     #returnning unit vector of a vector
-    unitVector = vector / numpy.linealf.norm(vector)
+    unitVector = vector / numpy.linalg.norm(vector)
     return unitVector
 
 def angle_calculation_btwn(vector1, vector2):
@@ -132,15 +132,23 @@ def publish_transforms():
         cameraT3pos = matrixTimesVector(T3_inverse, robotT2pos)
         newCam = len(cameraT3pos)-1
         #popping the last element
-        cameraT3pos = [:newCam]
+        cameraT3pos = cameraT3pos[:newCam]
 
         #calculating angles between
-        angle = angle_calculation_btwn(xT3, cameraT3pos)
+        angleT3 = angle_calculation_btwn(xT3, cameraT3pos)
 
     #now when it is not in first time
+    laNormal = numpy.cross(xT3, cameraT3pos)
 
+    #applying those movements
+    T3 = tf.transformations.concatenate_matrices(
+        tf.transformations.quaternion_matrix(
+            tf.transformations.quaternion_about_axis(angleT3, laNormal)
+            ),
+        tf.transformations.translation_matrix((0.0, 0.1, 0.1))
+        )
 
-    #calculations
+    #STAMPING T3
     camera_transform = geometry_msgs.msg.TransformStamped()
     camera_transform.header.stamp = rospy.Time.now()
     camera_transform.header.frame_id = "robot_frame"
