@@ -38,10 +38,10 @@ def inverse_to_message(T):
 def publish_transforms():
     # ----------T1-------------------------------------
     T1 = tf.transformations.concatenate_matrices(
-        tf.transformations.translation_matrix((0.0, 1.0, 1.0)),
         tf.transformations.quaternion_matrix(
             tf.transformations.quaternion_from_euler(0.79, 0.0, 0.79)
-            )
+            ),
+        tf.transformations.translation_matrix((0.0, 1.0, 1.0))
         )
     object_transform = geometry_msgs.msg.TransformStamped()
     object_transform.header.stamp = rospy.Time.now()
@@ -52,10 +52,10 @@ def publish_transforms():
 
     #-------------T2------------------------------------
     T2 = tf.transformations.concatenate_matrices(
-        tf.transformations.translation_matrix((0.0, -1.0, 0.0)),
         tf.transformations.quaternion_matrix(
             tf.transformations.quaternion_about_axis(1.5, (0, 0, 1))
-            )
+            ),
+        tf.transformations.translation_matrix((0.0, -1.0, 0.0))
         )
     robot_transform = geometry_msgs.msg.TransformStamped()
     robot_transform.header.stamp = rospy.Time.now()
@@ -64,26 +64,20 @@ def publish_transforms():
     robot_transform.transform = message_from_transform(T2)
     br.sendTransform(robot_transform)
  
-    #robot inverse matrix, T3 will use it---------------
-    T1_inverse = tf.transformations.inverse_matrix(T1)
-    invertedAngles = inverse_to_message(T1_inverse)
-
     #-------------T3------------------------------------
+    #Starter point
     T3 = tf.transformations.concatenate_matrices(
-        tf.transformations.translation_matrix((0.0, 0.1, 0.1)),
         tf.transformations.quaternion_matrix(
-            tf.transformations.quaternion_from_euler(
-                invertedAngles[0],
-                invertedAngles[1],
-                invertedAngles[2]
-                )
-            )
+            tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
+            ),
+        tf.transformations.translation_matrix((0.0, 0.1, 0.1))
         )
+    #calculations
     camera_transform = geometry_msgs.msg.TransformStamped()
     camera_transform.header.stamp = rospy.Time.now()
     camera_transform.header.frame_id = "robot_frame"
     camera_transform.child_frame_id = "camera_frame"
-    camera_transform.transform = message_from_transform(T2)
+    camera_transform.transform = message_from_transform(T3)
     br.sendTransform(camera_transform)
 
 if __name__ == '__main__':
