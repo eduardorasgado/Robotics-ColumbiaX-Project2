@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2_ros
   geometry_msgs
+  visualization_msgs
 )
 
 ## Generate messages in the 'msg' folder
@@ -38,6 +39,7 @@ find_package(catkin REQUIRED COMPONENTS
    DEPENDENCIES
    std_msgs
    geometry_msgs
+   visualization_msgs
  )
 
 include_directories(
@@ -45,3 +47,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+ add_executable(marker_publisher src/marker_publisher.cpp)
+
+ add_dependencies(marker_publisher marker_publisher_generate_messages_cpp)
+
+ target_link_libraries(marker_publisher
+   ${catkin_LIBRARIES})
