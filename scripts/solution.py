@@ -68,7 +68,7 @@ def publish_transforms():
     global cameraT3pos
     global robotT2pos
     global starter
-    
+
     # ----------T1-------------------------------------
     T1 = tf.transformations.concatenate_matrices(
         tf.transformations.quaternion_matrix(
@@ -105,6 +105,41 @@ def publish_transforms():
             ),
         tf.transformations.translation_matrix((0.0, 0.1, 0.1))
         )
+    if starter:
+        starter = False
+        #now the x axis
+        xT3 = [1, 0, 0]
+
+        #now lets calculate the origin coordinates
+        #usign object coordinate frame and camera frame
+
+        #using object frame
+        P2 = tf.transformations.translation_from_matrix(T1) 
+        P2 = P2.tolist()
+
+        #inverse matrix of t2
+        T2_inverse = tf.transformations.inverse_matrix(T2)
+        #inverse matrix of t3
+        T3_inverse = tf.transformations.inverse_matrix(T3)
+
+        #position reference to robot--------------
+        robotT2pos = matrixTimesVector(T2_inverse, P2)
+        newRob = len(robotT2pos)-1
+        #robotT2pos - last
+        robotT2pos = robotT2pos[:newRob]
+
+        #position reference to camera frame------
+        cameraT3pos = matrixTimesVector(T3_inverse, robotT2pos)
+        newCam = len(cameraT3pos)-1
+        #popping the last element
+        cameraT3pos = [:newCam]
+
+        #calculating angles between
+        angle = angle_calculation_btwn(xT3, cameraT3pos)
+
+    #now when it is not in first time
+
+
     #calculations
     camera_transform = geometry_msgs.msg.TransformStamped()
     camera_transform.header.stamp = rospy.Time.now()
